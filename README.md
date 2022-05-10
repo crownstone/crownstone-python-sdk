@@ -26,7 +26,7 @@ Again, for examples on how to use the libraries, go to the above repositories.
 
 The tool configuration can be done through files in this repository and name them exactly like this:
 - `tool_config.json`
-    - You can find a template of this in the `config` folder. Fill it with your settings in order for all tools to work.
+    - You can find a template of this in the `tools/config` folder. Fill it with your settings in order for all tools to work.
 - `key_file.json`
     - You can choose to use a `key_file.json` in a different location on your computer if you don't want to put keys in a repository (even though `tool_config.json` is in .gitignore). You can configure your `tool_config` to do this.
 
