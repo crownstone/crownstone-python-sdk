@@ -9,30 +9,39 @@ The Python SDK bundles a couple of tools based on the Python libs:
 If you are interested instead of creating your own tools using the above libraries, you are kindly referred to those
 repositories themselves.
 
-## Tools
+## Installation
+
+You can install these tools through pip locally:
+
+```
+pip install .
+```
+
+TODO: Make available on pip repository.
+
+## Tool arguments
 
 These tools are meant to be used as quick-access to common functionality. They are standalone binaries that work as is.
 Again, for examples on how to use the libraries, go to the above repositories.
 
-Tools are configured via:
-- tool_config.json
-    - You can find a template of this in the /config folder. Fill it with your settings in order for all tools to work.
-- key_file.json
-    - You can choose to use a key_file.json in a different location on your computer if you don't want to put keys in a repository (even though tool_config.json is in .gitignore). You can configure your tool_config to do this.
-- command line arguments
-    - These override the tool_config
+The tool configuration can be done through files in this repository and name them exactly like this:
+- `tool_config.json`
+    - You can find a template of this in the `config` folder. Fill it with your settings in order for all tools to work.
+- `key_file.json`
+    - You can choose to use a `key_file.json` in a different location on your computer if you don't want to put keys in a repository (even though `tool_config.json` is in .gitignore). You can configure your `tool_config` to do this.
+
+It is also possible to use command line arguments which will override the values in any file:
+
 ```
---help            show this help message and exit
-  --bleAdapterAddress [I]        bleAdapterAddress of the BLE chip you want to use (linux only). This is usually a mac address.
-  --keyFile KEYFILE     The json file with key information, expected values:
-                        admin, member, guest, basic,serviceDataKey,
-                        localizationKey, meshApplicationKey, and
-                        meshNetworkKey
+  --help                   show this help message and exit
+  --bleAdapterAddress [I]  bleAdapterAddress of the BLE chip you want to use (linux only). This is usually a mac address.
+  --keyFile KEYFILE        the json file with key information
+  --configFile CONFIGFILE  the json file with config information
 ```
 
 ## Tool config
 
-This is the tool config format. It is shown in /config/tool_config.template.json.
+This is the tool config format. It is shown in `config/tool_config.template.json`.
 
 #### Obtaining keys
 
@@ -57,6 +66,7 @@ With this ID you can access your keys on the */users/{id}/keysV2* tab. Fill your
   "bleAdapterAddress": null
 }
 ```
+
 #### absolutePathToKeyFile
 If this is defined, the keys are ignored. The tool will look for a key_file at that path instead.
 
@@ -68,7 +78,7 @@ The bleAdapterAddress of the BLE chip you want the library to use.
 
 
 ## Key file
-This is the format of the key_file.json. You can use it via the absolutePathToKeyFile config or via the keyFile command line argument.
+This is the format of the `key_file.json`. You can use it via the absolutePathToKeyFile config or via the keyFile command line argument.
 
 ```
 {
@@ -94,28 +104,49 @@ These arguments are available for all tools. A tool may have different arguments
 ## Available tools
 
 Currently, available tools are:
-### scan_any_crownstones.py
-This will scan for any ble items available. Additional parameters are:
-#### --verbose      
-> Verbose will show the full advertisement content, not just a single line summary.
-#### --macFilter      
-> Optional mac filter to only show results for this mac address.
-  
-### scan_known_crownstones.py
-This will scan for any Crownstones in your Sphere. This requires the keys you set to match those on the Crownstones. Additional parameters are:
-#### --verbose      
-> Verbose will show the full advertisement content, not just a single line summary.
-#### --macFilter      
-> Optional mac filter to only show results for this mac address.
 
-### switch_crownstone.py
-This will scan for any Crownstones in your Sphere. This requires the keys you set to match those on the Crownstones. Additional parameters are:
-#### --bleAddress
-> The MAC address of the Crownstone you want to switch. This is required if you do not switch via broadcast.
-#### --switchTo
-> ##### MANDATORY
-> The switch state. It is either between 0 and 100, or 255. 0 is off, 1 .. 99 is dimming, 100 is fully on, 255 is on to whatever behaviour thinks it should be.
+<details>
+<summary> cs_scan_any_crownstone --verbose [--macFilter filter]</summary>
+
+> This will scan for any available BLE (Bluetooth Low Energy) device.
+> 
+> - Parameters
+>   - **verbose**: Optionally show full advertisement, not just a single line summary.
+>   - **macFilter**(string): Optionally only filter for specific MAC address (e.g. `AA:BB:CC:DD:EE:FF`).
+>
+</details>
+
+<details>
+<summary> cs_scan_known_crownstone --verbose [--macFilter filter]</summary>
+
+> This will scan for any Crownstone in your sphere. This requires the keys you set to match those on the Crownstones.
+> 
+> - Parameters
+>   - **verbose**: Optionally show full advertisement, not just a single line summary.
+>   - **macFilter**(string): Optionally only filter for specific MAC address (e.g. `AA:BB:CC:DD:EE:FF`).
+>
+</details>
+
+<details>
+<summary> cs_switch_crownstone [--bleAddress address] --switchTo state</summary>
+
+> This will switch a Crownstone in your sphere. This requires the keys you set to match those on the Crownstones.
+> 
+> - Parameters
+>   - **bleAddress**(string): Optionally. The MAC address of the Crownstone that you want to switch (e.g. `AA:BB:CC:DD:EE:FF`). Required if you do not switch via broadcast.
+>   - **switchTo**(integer): Set the switch state. Between 0 and 100 is dimming (0 is off, 100 is fully on). Set to 255 to switch to what the "behaviour rules" on the Crownstones want it to be.
+>
+</details>
+
+<details>
+<summary> cs_upload_microapp --bleAddress address --file binaryFile</summary>
+
+> This will switch a Crownstone in your sphere. This requires the keys you set to match those on the Crownstones.
+> 
+> - Parameters
+>   - **bleAddress**(string): Required MAC address of the Crownstone that you want to upload microapp to (e.g. `AA:BB:CC:DD:EE:FF`).
+>   - **file**(string): Required binary file (`.bin`) of the microapp to be uploaded.
+>
+</details>
 
 
-### upload_microapp.py
-TODO: finalize and document
