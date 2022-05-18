@@ -9,15 +9,23 @@ The Python SDK bundles a couple of tools based on the Python libs:
 If you are interested instead of creating your own tools using the above libraries, you are kindly referred to those
 repositories themselves.
 
-## Installation
+## Installation from PyPi
 
-You can install these tools through pip locally:
+You can install these tools through pip:
 
 ```
+pip install crownstone-sdk
+```
+
+## Installation from source
+
+You can install these tools through pip also locally by:
+
+```
+git clone https://github.com/crownstone/crownstone-python-sdk
+cd crownstone-python-sdk
 pip install .
 ```
-
-TODO: Make available on pip repository.
 
 ## Tool arguments
 
