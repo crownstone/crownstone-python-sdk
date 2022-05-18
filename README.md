@@ -149,7 +149,7 @@ Currently, available tools are:
 <details>
 <summary> cs_upload_microapp --bleAddress address --file binaryFile</summary>
 
-> This will switch a Crownstone in your sphere. This requires the keys you set to match those on the Crownstones.
+> This will upload a microapp.
 > 
 > - Parameters
 >   - **bleAddress**(string): Required MAC address of the Crownstone that you want to upload microapp to (e.g. `AA:BB:CC:DD:EE:FF`).
@@ -157,4 +157,12 @@ Currently, available tools are:
 >
 </details>
 
+<details>
+<summary> cs_enable_microapp --bleAddress address</summary>
 
+> This will enable a microapp. Required if a microapp is not yet been enabled or has been disabled.
+> 
+> - Parameters
+>   - **bleAddress**(string): Required MAC address of the Crownstone that you want to upload microapp to (e.g. `AA:BB:CC:DD:EE:FF`).
+>
+</details>
