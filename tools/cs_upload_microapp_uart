@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+
+""" Experimental tool to upload a microapp to a Crownstone. """
+
+import asyncio
+import logging
+from os import path
+import datetime
+import argparse
+
+# from crownstone_uart.core.CrownstoneUart import CrownstoneUart
+from bluenet_logs import BluenetLogs
+from crownstone_uart import CrownstoneUart
+
+tool_version = "1.0.0"
+
+argParser = argparse.ArgumentParser('Upload, validate, and enable a microapp on a Crownstone.')
+argParser.add_argument('-d', '--device', required=True, help='The UART device of the Crownstone you want to connect to. Example: /dev/ttyACM0')
+argParser.add_argument('-f', '--file', required=True, help='Microapp binary to upload')
+argParser.add_argument('--verbose',
+                       '-v',
+                       dest="verbose",
+                       action='store_true',
+                       help='Show verbose output')
+argParser.add_argument('--logStringsFile',
+                       '-l',
+                       dest='logStringsFileName',
+                       metavar='path',
+                       type=str,
+                       help='The path of the file with the extracted logs on your system.')
+
+try:
+    file_path = path.dirname(path.realpath(__file__))
+    args = argParser.parse_args()
+except Exception as e:
+    print("ERROR", e)
+    quit()
+
+if args.verbose:
+    logging.basicConfig(format='%(asctime)s %(levelname)-7s: %(message)s', level=logging.DEBUG)
+
+# create the library instance
+print(f'Initializing tool with device={args.device}')
+core = CrownstoneUart()
+bluenetLogs = BluenetLogs()
+
+if args.logStringsFileName:
+    bluenetLogs.setLogStringsFile(args.logStringsFileName)
+
+# It looks like the UART python library can only send chunksize of 32
+maxChunkSize = 32
+
+# The index where we want to put our microapp.
+appIndex = 0
+
+# The microapp upload protocol version
+protocol = 1
+
+async def main():
+    print("Main")
+    await core.initialize_usb(port=args.device)
+
+    with open(args.file, "rb") as f:
+        appData = f.read()
+
+    print("First 32 bytes of the binary:")
+    print(list(appData[0:32]))
+
+    info = await core.microapp.getMicroappInfo()
+    print("Information obtained from Crownstone:")
+    print(info)
+
+    # Perform some checks with the info we received.
+    if appIndex >= info.maxApps:
+        print(f"This crownstone doesn't have room for index {appIndex}")
+        return
+
+    if len(appData) > info.maxAppSize:
+        print(f"This crownstone doesn't have room for a binary size of {len(appData)}")
+        return
+
+    # If there is already some data at this index, it has to be removed first.
+    if info.appsStatus[appIndex].tests.hasData:
+        print(f"Remove data at index {appIndex}")
+        await core.microapp.removeMicroapp(appIndex, protocol)
+
+    # Determine the chunk size by taking the minimum of our max, and the crownstones max.
+    chunkSize = min(maxChunkSize, info.maxChunkSize)
+
+    print(f"{datetime.datetime.now()} Start upload with chunkSize={chunkSize}")
+    await core.microapp.uploadMicroapp(appData, appIndex, protocol, chunkSize)
+    print(f"{datetime.datetime.now()} Upload done")
+
+    print("Validate..")
+    await core.microapp.validateMicroapp(appIndex, protocol)
+    print("Validate done")
+
+    print("Enable..")
+    await core.microapp.enableMicroapp(appIndex, protocol)
+    print("Enable done")
+
+try:
+    # asyncio.run does not work here.
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
+except KeyboardInterrupt:
+    print("Stopping.")
+
+core.stop()
