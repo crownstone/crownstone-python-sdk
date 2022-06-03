@@ -4,8 +4,8 @@ import argparse
 
 def setupDefaultCommandLineArguments(description):
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument('--bleAdapterAddress', dest='bleAdapterAddress', metavar='I', type=int, nargs='?', default=None,
-                        help='bleAdapterAddress of the BLE chip you want to use (linux only). This is usually a mac address.')
+    parser.add_argument('--bleAdapterAddress', dest='bleAdapterAddress', metavar='address', default=None,
+                        help='The address of the BLE chip you want to use (linux only). This is usually a mac address.')
     parser.add_argument('--keyFile', default=None,
                         help='The json file with key information, expected values: admin, member, guest, basic,' +
                              'serviceDataKey, localizationKey, meshApplicationKey, and meshNetworkKey')
