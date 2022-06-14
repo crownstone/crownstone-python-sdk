@@ -5,10 +5,10 @@
 import asyncio
 import logging
 from os import path
-import datetime
 
 from bluenet_logs import BluenetLogs
 from crownstone_ble import CrownstoneBle, BleEventBus, BleTopics
+from crownstone_core.util.JsonFileStore import JsonFileStore
 from crownstone_uart import CrownstoneUart
 
 from tools.util.config import getToolConfig, loadKeysFromConfig, setupDefaultCommandLineArguments, macFilterPassed
@@ -22,9 +22,28 @@ argParser.add_argument('-a', '--bleAddress',
 argParser.add_argument('-d', '--device',
                        default=None,
                        help='The UART device of the Crownstone you want to connect to. Example: /dev/ttyACM0')
-argParser.add_argument('-f', '--file',
+argParser.add_argument('--crownstoneId',
                        required=True,
-                       help='Microapp binary to upload')
+                       type=int,
+                       help='The Crownstone ID, an ID (1-255) that is unique within the sphere.')
+argParser.add_argument('--meshDeviceKey',
+                       required=True,
+                       help="The 16 byte mesh device key, a unique key for each crownstone. Example: 0123456789abcdef0123456789abcdef")
+argParser.add_argument('--sphereId',
+                       required=True,
+                       type=int,
+                       help='The sphere ID, an ID (0-255) that is the same for each Crownstone within the sphere.')
+argParser.add_argument('--ibeaconUUID',
+                       required=True,
+                       help='The iBeacon UUID. Should be the same for each Crownstone in the sphere. Example: 1843423e-e175-4af0-a2e4-31e32f729a8a')
+argParser.add_argument('--ibeaconMajor',
+                       required=True,
+                       type=int,
+                       help='The iBeacon major. Together with the minor, should be unique per sphere.')
+argParser.add_argument('--ibeaconMinor',
+                       required=True,
+                       type=int,
+                       help='The iBeacon minor. Together with the major, should be unique per sphere.')
 argParser.add_argument('--verbose', '-v',
                        dest="verbose",
                        action='store_true',
@@ -72,67 +91,32 @@ else:
     if args.logStringsFileName:
         bluenetLogs.setLogStringsFile(args.logStringsFileName)
 
-# The preferred chunk size. The library or the crownstone may make it a smaller size.
-maxChunkSize = 256
-
-# The index where we want to put our microapp.
-appIndex = 0
-
-# The microapp upload protocol version
-protocol = 1
-
-
-async def upload():
-    with open(args.file, "rb") as f:
-        appData = f.read()
-
-    print("First 32 bytes of the binary:")
-    print(list(appData[0:32]))
-
-    info = await core.microapp.getMicroappInfo()
-    print("Information obtained from Crownstone:")
-    print(info)
-
-    # Perform some checks with the info we received.
-    if appIndex >= info.maxApps:
-        print(f"This crownstone doesn't have room for index {appIndex}")
-        return
-
-    if len(appData) > info.maxAppSize:
-        print(f"This crownstone doesn't have room for a binary size of {len(appData)}")
-        return
-
-    # If there is already some data at this index, it has to be removed first.
-    if info.appsStatus[appIndex].tests.hasData:
-        print(f"Remove data at index {appIndex}")
-        await core.microapp.removeMicroapp(appIndex, protocol)
-
-    # Determine the chunk size by taking the minimum of our max, and the crownstones max.
-    chunkSize = min(maxChunkSize, info.maxChunkSize)
-
-    print(f"{datetime.datetime.now()} Start upload with a chunkSize of maximum {chunkSize}")
-    await core.microapp.uploadMicroapp(appData, appIndex, protocol, chunkSize)
-    print(f"{datetime.datetime.now()} Upload done")
-
-    print("Validate..")
-    await core.microapp.validateMicroapp(appIndex, protocol)
-    print("Validate done")
-
-    print("Enable..")
-    await core.microapp.enableMicroapp(appIndex, protocol)
-    print("Enable done")
-
-
 async def main():
-    if useBle:
-        await core.connect(args.bleAddress)
-
-    await upload()
+    fileReader = JsonFileStore(tool_config["absolutePathToKeyFile"])
+    keysDict = fileReader.getData()
 
     if useBle:
+        await core.setup.setup(
+            args.bleAddress,
+            args.sphereId,
+            args.crownstoneId,
+            args.meshDeviceKey,
+            args.ibeaconUUID,
+            args.ibeaconMajor,
+            args.ibeaconMinor
+        )
         await core.disconnect()
         await core.shutDown()
-
+    else:
+        await core.setup.setup(
+            args.sphereId,
+            args.crownstoneId,
+            args.meshDeviceKey,
+            args.ibeaconUUID,
+            args.ibeaconMajor,
+            args.ibeaconMinor,
+            keysDict
+        )
     print("Done!")
 
 try:
