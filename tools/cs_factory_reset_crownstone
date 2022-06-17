@@ -27,7 +27,7 @@ argParser.add_argument('--verbose', '-v',
                        action='store_true',
                        help='Show verbose output')
 argParser.add_argument('--logStringsFile', '-l',
-                       default=None,
+                       default="",
                        dest='logStringsFileName',
                        metavar='path',
                        type=str,
