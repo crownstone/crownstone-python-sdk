@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" Experimental tool to upload a microapp to a Crownstone. """
+""" Tool to upload a microapp to a Crownstone. """
 
 import asyncio
 import logging
@@ -30,7 +30,7 @@ argParser.add_argument('--verbose', '-v',
                        action='store_true',
                        help='Show verbose output')
 argParser.add_argument('--logStringsFile', '-l',
-                       default=None,
+                       default="",
                        dest='logStringsFileName',
                        metavar='path',
                        type=str,
@@ -47,7 +47,7 @@ if args.verbose:
     logging.basicConfig(format='%(asctime)s %(levelname)-7s: %(message)s', level=logging.DEBUG)
 
 core = None
-bluenetLogs = BluenetLogs()
+bluenetLogs = None
 useBle = False
 
 if args.bleAddress is not None:
@@ -70,6 +70,7 @@ else:
     core.initialize_usb_sync(port=args.device)
 
     if args.logStringsFileName:
+        bluenetLogs = BluenetLogs()
         bluenetLogs.setLogStringsFile(args.logStringsFileName)
 
 # The preferred chunk size. The library or the crownstone may make it a smaller size.

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" Experimental tool to upload a microapp to a Crownstone. """
+""" Tool to setup a Crownstone. """
 
 import asyncio
 import logging
@@ -15,7 +15,7 @@ from tools.util.config import getToolConfig, loadKeysFromConfig, setupDefaultCom
 
 tool_version = "1.0.0"
 
-argParser = setupDefaultCommandLineArguments('Upload, validate, and enable a microapp on a Crownstone.')
+argParser = setupDefaultCommandLineArguments('Setup a Crownstone.')
 argParser.add_argument('-a', '--bleAddress',
                        default=None,
                        help='To upload via BLE: the MAC address/handle of the Crownstone you want to connect to. Example: 11:22:33:AA:BB:CC')
@@ -49,7 +49,7 @@ argParser.add_argument('--verbose', '-v',
                        action='store_true',
                        help='Show verbose output')
 argParser.add_argument('--logStringsFile', '-l',
-                       default=None,
+                       default="",
                        dest='logStringsFileName',
                        metavar='path',
                        type=str,
@@ -66,7 +66,7 @@ if args.verbose:
     logging.basicConfig(format='%(asctime)s %(levelname)-7s: %(message)s', level=logging.DEBUG)
 
 core = None
-bluenetLogs = BluenetLogs()
+bluenetLogs = None
 useBle = False
 
 if args.bleAddress is not None:
@@ -89,6 +89,7 @@ else:
     core.initialize_usb_sync(port=args.device)
 
     if args.logStringsFileName:
+        bluenetLogs = BluenetLogs()
         bluenetLogs.setLogStringsFile(args.logStringsFileName)
 
 async def main():
@@ -96,7 +97,7 @@ async def main():
     keysDict = fileReader.getData()
 
     if useBle:
-        await core.setup.setup(
+        await core.setupCrownstone(
             args.bleAddress,
             args.sphereId,
             args.crownstoneId,
