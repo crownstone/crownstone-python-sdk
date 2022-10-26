@@ -22,6 +22,7 @@ setup(
         'tools/cs_switch_crownstone',
         'tools/cs_enable_microapp',
         'tools/cs_upload_microapp',
+        'tools/cs_microapp_message',
     ],
     classifiers=[
         'Programming Language :: Python :: 3.7'
