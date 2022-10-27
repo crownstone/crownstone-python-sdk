@@ -1,4 +1,4 @@
 # See https://www.python.org/dev/peps/pep-0440/#compatible-release
-crownstone-ble~=2.4
-crownstone-uart~=2.5
+crownstone-ble~=2.6
+crownstone-uart~=2.6
 bleak==0.10
