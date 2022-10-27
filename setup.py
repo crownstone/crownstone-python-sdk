@@ -20,9 +20,11 @@ setup(
         'tools/cs_scan_for_alternative_state',
         'tools/cs_scan_known_crownstones',
         'tools/cs_switch_crownstone',
-        'tools/cs_enable_microapp',
-        'tools/cs_upload_microapp',
+        'tools/cs_microapp_enable',
+        'tools/cs_microapp_upload',
         'tools/cs_microapp_message',
+        'tools/cs_setup_crownstone',
+        'tools/cs_factory_reset_crownstone',
     ],
     classifiers=[
         'Programming Language :: Python :: 3.7'
