@@ -8,7 +8,7 @@ from os import path
 import datetime
 
 from bluenet_logs import BluenetLogs
-from crownstone_ble import CrownstoneBle, BleEventBus, BleTopics
+from crownstone_ble import CrownstoneBle
 from crownstone_uart import CrownstoneUart
 
 from tools.util.config import getToolConfig, loadKeysFromConfig, setupDefaultCommandLineArguments, macFilterPassed
