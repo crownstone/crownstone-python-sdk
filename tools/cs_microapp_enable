@@ -21,6 +21,9 @@ argParser.add_argument('-a', '--bleAddress',
 argParser.add_argument('-d', '--device',
                        default=None,
                        help='The UART device of the Crownstone you want to connect to. Example: /dev/ttyACM0')
+argParser.add_argument('-D', '--disable',
+                       action='store_true',
+                       help='Disable the microapp instead of enable.')
 argParser.add_argument('-i', '--crownstoneId',
                        required=False,
                        default=None,
@@ -85,11 +88,19 @@ async def enable():
     await core.microapp.enableMicroapp(appIndex, protocol, args.crownstoneId)
     print("Enable done")
 
+async def disable():
+    print("Disable..")
+    await core.microapp.disableMicroapp(appIndex, protocol, args.crownstoneId)
+    print("Disable done")
+
 async def main():
     if useBle:
         await core.connect(args.bleAddress)
 
-    await enable()
+    if args.disable:
+        await disable()
+    else:
+        await enable()
 
     if useBle:
         await core.disconnect()
